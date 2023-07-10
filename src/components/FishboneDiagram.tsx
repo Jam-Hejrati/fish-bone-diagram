@@ -59,6 +59,7 @@ const FishboneDiagram = () => {
     const fishboneData = [
         {
             title: "نیروانسانی",
+
             children: [
                 {
                     title: "علل یک",
@@ -100,7 +101,11 @@ const FishboneDiagram = () => {
                     const cordinate = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85);
                     createCordinates(item.children, makeNewLine, cordinate); // Recursively call the function for nested children
                 } else {
-                    createCordinates(item.children, makeNewLine, cord); // Recursively call the function for nested children
+                    if (!item.cord) {
+                        createCordinates(item.children, makeNewLine, cord); // Recursively call the function for nested children
+                    } else {
+                        createCordinates(item.children, makeNewLine, item.cord); // Recursively call the function for nested children
+                    }
                 }
             }
         });
