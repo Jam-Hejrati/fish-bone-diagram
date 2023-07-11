@@ -37,16 +37,25 @@ const FishboneDiagram = () => {
         y2: stageSize.height / 2,
     };
 
-    const makeNewLine = (prevLine: Line, r: number, angle: number, percentage: number) => {
+    const makeNewLine = (
+        prevLine: Line,
+        r: number,
+        angle: number,
+        percentage: number,
+        YSpinecoordinate = stageSize.height / 2,
+        reflection = false
+    ) => {
         const dx = prevLine?.x2 - prevLine?.x1;
         const newX = prevLine?.x1 + dx * percentage;
         const newY = prevLine?.y1 + dx * percentage * ((prevLine?.y2 - prevLine?.y1) / (prevLine?.x2 - prevLine?.x1));
         const newLineFirstPoint = { newX, newY };
         const finalCoord = [
             newLineFirstPoint?.newX,
-            newLineFirstPoint?.newY,
+            reflection ? YSpinecoordinate - newLineFirstPoint?.newY + YSpinecoordinate : newLineFirstPoint?.newY,
             newLineFirstPoint?.newX - r * Math.cos(angle),
-            newLineFirstPoint?.newY - r * Math.sin(angle),
+            reflection
+                ? YSpinecoordinate - (newLineFirstPoint?.newY - r * Math.sin(angle)) + YSpinecoordinate
+                : newLineFirstPoint?.newY - r * Math.sin(angle),
         ];
         return finalCoord;
     };
@@ -63,19 +72,130 @@ const FishboneDiagram = () => {
                         },
                         {
                             title: "علل 1.2",
+                            children: [
+                                {
+                                    title: "علل 2",
+                                    children: [
+                                        {
+                                            title: "علل 2",
+                                        },
+                                    ],
+                                },
+                            ],
                         },
                     ],
                 },
             ],
         },
+        // {
+        //     title: "نیروانسانی",
+        //     children: [
+        //         {
+        //             title: "علل یک",
+        //             children: [
+        //                 {
+        //                     title: "علل 2",
+        //                 },
+        //                 {
+        //                     title: "علل 1.2",
+        //                     children: [
+        //                         {
+        //                             title: "علل 2",
+        //                             children: [
+        //                                 {
+        //                                     title: "علل 2",
+        //                                 },
+        //                             ],
+        //                         },
+        //                     ],
+        //                 },
+        //             ],
+        //         },
+        //     ],
+        // },
+        // {
+        //     title: "نیروانسانی",
+        //     children: [
+        //         {
+        //             title: "علل یک",
+        //             children: [
+        //                 {
+        //                     title: "علل 2",
+        //                 },
+        //                 {
+        //                     title: "علل 1.2",
+        //                     children: [
+        //                         {
+        //                             title: "علل 2",
+        //                         },
+        //                     ],
+        //                 },
+        //             ],
+        //         },
+        //     ],
+        // },
+        // {
+        //     title: "نیروانسانی",
+        //     children: [
+        //         {
+        //             title: "علل یک",
+        //             children: [
+        //                 {
+        //                     title: "علل 2",
+        //                 },
+        //                 {
+        //                     title: "علل 1.2",
+        //                     children: [
+        //                         {
+        //                             title: "علل 2",
+        //                         },
+        //                     ],
+        //                 },
+        //             ],
+        //         },
+        //     ],
+        // },
+        // {
+        //     title: "نیروانسانی",
+        //     children: [
+        //         {
+        //             title: "علل یک",
+        //             children: [
+        //                 {
+        //                     title: "علل 2",
+        //                 },
+        //                 {
+        //                     title: "علل 1.2",
+        //                     children: [
+        //                         {
+        //                             title: "علل 2",
+        //                         },
+        //                     ],
+        //                 },
+        //             ],
+        //         },
+        //     ],
+        // },
     ];
+
+    const reflecter = (lineTree, YSpinecoordinate) => {
+        lineTree.forEach((item) => {
+            if (item.coord) {
+                item.coord[1] = YSpinecoordinate - item.coord[1] + YSpinecoordinate;
+                item.coord[3] = YSpinecoordinate - item.coord[3] + YSpinecoordinate;
+            }
+            if (item.children) {
+                reflecter(item.children, YSpinecoordinate);
+            }
+        });
+    };
 
     const items = [];
     let depthCounter = 1;
     const createCordinates = (data: any, makeNewLine: any, cord: any) => {
         data.forEach((item: any, index: number) => {
             if (!cord) {
-                item.cord = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85);
+                item.cord = makeNewLine(SpineCordinate, 400, Math.PI / 2.3, 0.4);
             } else {
                 const cordObject = {
                     x1: cord[0],
@@ -84,20 +204,16 @@ const FishboneDiagram = () => {
                     y2: cord[3],
                 };
                 if (depthCounter % 2 === 0) {
-                    item.cord = makeNewLine(cordObject, 200, 0, 0.85);
+                    item.cord = makeNewLine(cordObject, 200, 0, 0.5);
                 } else {
-                    item.cord = makeNewLine(cordObject, 200, Math.PI / 2.3, 0.85);
+                    item.cord = makeNewLine(cordObject, 250, Math.PI / 2.3, 0.9);
                 }
             }
 
             if (item.children) {
                 if (!cord) {
                     let cordinate: any;
-                    if (depthCounter % 2 === 0) {
-                        cordinate = makeNewLine(SpineCordinate, 200, Math.PI, 0.85);
-                    } else {
-                        cordinate = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85);
-                    }
+                    cordinate = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.4);
                     depthCounter++;
                     createCordinates(item.children, makeNewLine, cordinate); // Recursively call the function for nested children
                 } else {
@@ -116,17 +232,15 @@ const FishboneDiagram = () => {
         });
     };
 
-    console.log(fishboneData);
-
     createCordinates(fishboneData, makeNewLine, null);
-    console.log(items);
+    reflecter(items, stageSize.height / 2);
 
     const randomColorGenerator = () => {
         const color = Math.floor(Math.random() * 16777215).toString(16);
         console.log(color);
         return color;
     };
-
+    console.log(makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85));
     return (
         <Box
             sx={{
@@ -145,14 +259,7 @@ const FishboneDiagram = () => {
                         closed
                         stroke="black"
                         strokeWidth={3}
-                    />
-                    {/* <Line
-                        points={makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85)}
-                        tension={0.5}
-                        closed
-                        stroke="red"
-                        strokeWidth={3}
-                    /> */}
+                    />  
                     {items.map((item) => (
                         <Line
                             points={item.coord}
