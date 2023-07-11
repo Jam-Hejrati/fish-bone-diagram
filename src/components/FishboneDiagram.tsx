@@ -14,7 +14,6 @@ const FishboneDiagram = () => {
         width: window.innerWidth,
         height: window.innerHeight,
     });
-    const [line, setLine] = useState();
 
     useEffect(() => {
         const handleResize = () => {
@@ -49,17 +48,12 @@ const FishboneDiagram = () => {
             newLineFirstPoint?.newX - r * Math.cos(angle),
             newLineFirstPoint?.newY - r * Math.sin(angle),
         ];
-        // setLine(finalCsoord)
-        console.log(finalCoord);
         return finalCoord;
     };
-
-    console.log(makeNewLine({ x1: 559.55, y1: 312.5, x2: 518.8587973894732, y2: 116.68318246353542 }, 200, 0, 0.85));
 
     const fishboneData = [
         {
             title: "نیروانسانی",
-
             children: [
                 {
                     title: "علل یک",
@@ -67,14 +61,19 @@ const FishboneDiagram = () => {
                         {
                             title: "علل 2",
                         },
+                        {
+                            title: "علل 1.2",
+                        },
                     ],
                 },
             ],
         },
     ];
 
-    const createCordinates = (data, makeNewLine, cord) => {
-        data.forEach((item) => {
+    const items = [];
+    let depthCounter = 1;
+    const createCordinates = (data: any, makeNewLine: any, cord: any) => {
+        data.forEach((item: any, index: number) => {
             if (!cord) {
                 item.cord = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85);
             } else {
@@ -84,42 +83,49 @@ const FishboneDiagram = () => {
                     x2: cord[2],
                     y2: cord[3],
                 };
-
-                item.cord = makeNewLine(cordObject, 200, Math.PI / 2.3, 0.85);
+                if (depthCounter % 2 === 0) {
+                    item.cord = makeNewLine(cordObject, 200, 0, 0.85);
+                } else {
+                    item.cord = makeNewLine(cordObject, 200, Math.PI / 2.3, 0.85);
+                }
             }
 
-            // if (item.cord) {
-            //     item.cord = makeNewLine(...item.cord, 200, Math.PI / 2.3, 0.85);
-            // } else if (cord) {
-            //     item.cord = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85);
-            // }
-
             if (item.children) {
-                console.log("object");
-
                 if (!cord) {
-                    const cordinate = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85);
+                    let cordinate: any;
+                    if (depthCounter % 2 === 0) {
+                        cordinate = makeNewLine(SpineCordinate, 200, Math.PI, 0.85);
+                    } else {
+                        cordinate = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85);
+                    }
+                    depthCounter++;
                     createCordinates(item.children, makeNewLine, cordinate); // Recursively call the function for nested children
                 } else {
                     if (!item.cord) {
+                        depthCounter++;
                         createCordinates(item.children, makeNewLine, cord); // Recursively call the function for nested children
                     } else {
+                        console.log(cord);
+                        depthCounter++;
                         createCordinates(item.children, makeNewLine, item.cord); // Recursively call the function for nested children
                     }
                 }
             }
+            console.log(item);
+            items.push({ title: item?.title, coord: item?.cord });
         });
     };
 
-    createCordinates(fishboneData, makeNewLine);
-
     console.log(fishboneData);
-    // fishboneData.map(mainBone => {
-    //     const mainBoneCordinate = makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85)
 
-    //     const children =
+    createCordinates(fishboneData, makeNewLine, null);
+    console.log(items);
 
-    // })
+    const randomColorGenerator = () => {
+        const color = Math.floor(Math.random() * 16777215).toString(16);
+        console.log(color);
+        return color;
+    };
 
     return (
         <Box
@@ -140,41 +146,22 @@ const FishboneDiagram = () => {
                         stroke="black"
                         strokeWidth={3}
                     />
-                    <Line
+                    {/* <Line
                         points={makeNewLine(SpineCordinate, 200, Math.PI / 2.3, 0.85)}
                         tension={0.5}
                         closed
                         stroke="red"
                         strokeWidth={3}
-                    />
-                    {line && (
+                    /> */}
+                    {items.map((item) => (
                         <Line
-                            points={makeNewLine(line, 200, 0, 0.85)}
+                            points={item.coord}
                             tension={0.5}
                             closed
-                            stroke="blue"
+                            stroke={`#${randomColorGenerator()}`}
                             strokeWidth={3}
                         />
-                    )}
-                    {/* <Line
-                        // points={[
-                        //     SpineCordinate.x2 - 0.1 * (SpineCordinate.x2 - SpineCordinate.x1),
-                        //     SpineCordinate.y1,
-                        //     ...secondCordinateBaseOnFirstCordinate(
-                        //         {
-                        //             x: SpineCordinate.x2 - 0.1 * (SpineCordinate.x2 - SpineCordinate.x1),
-                        //             y: SpineCordinate.y1,
-                        //         },
-                        //         200,
-                        //         Math.PI / 3
-                        //     ),
-                        // ]}
-                        points={makeNewLine({x1:524.9624777810523, y1:146.05570509400513, x2:324.96247778105226, y2:146.05570509400513}, 100, Math.PI / 2.3 , 0.45)}
-                        tension={0.5}
-                        closed
-                        stroke="green"
-                        strokeWidth={3}
-                    /> */}
+                    ))}
                 </Layer>
             </Stage>
         </Box>
