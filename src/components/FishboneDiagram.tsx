@@ -1,6 +1,7 @@
-import { Box } from "@mui/material";
+import { Box, SvgIcon } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Layer, Line, Stage, Text } from "react-konva";
+import { Layer, Line, Rect, RegularPolygon, Stage, Text } from "react-konva";
+import FishHead from "./FishHead";
 
 type Line = {
     x1: number;
@@ -40,7 +41,7 @@ const FishboneDiagram = () => {
             y2: stageSize.height / 2,
         };
         verticalLinesLength = stageSize.height / 2 - 50;
-        lineSpot = 0.4;
+        lineSpot = 0.3;
         depthCounter = 1;
         lineAngle = 0;
         nthChild = 1;
@@ -64,11 +65,15 @@ const FishboneDiagram = () => {
             return finalCoord;
         }
 
+        createCoordinate(item: any, lineBase: any, length: number, angle: number, startSpot: number) {
+            item.coord = this.makeNewLine(lineBase, length, startSpot, angle);
+        }
+
         start() {
             this.checkItems(this.data, this.makeNewLine, null);
         }
 
-        print(){
+        print() {
             console.log(this.data);
         }
 
@@ -84,11 +89,8 @@ const FishboneDiagram = () => {
                         Math.PI / 2.3,
                         this.lineSpot
                     );
-                    // if (this.nthChild % 2 === 0) {
-                    //     this.reflect(item, stageSize.height / 2);
-                    // }
                     this.verticalLinesLength -= 70;
-                    // this.lineSpot += 0.1;
+                    this.lineSpot += 0.15;
                     this.nthChild++;
                 } else {
                     const coordObject = {
@@ -106,49 +108,37 @@ const FishboneDiagram = () => {
                         this.lineAngle = this.lineAngle === 0 ? Math.PI / 2.3 : 0;
                         this.verticalLinesLength -= 70;
                     }
-                    // if (this.nthChild % 2 !== 0) {
-                    //     this.reflect(item, stageSize.height / 2);
-                    // }
                 }
 
                 if (item.children) {
                     if (!coord) {
                         let coordinate: any;
                         let angle = Math.PI / 2.3;
-                        coordinate = this.makeNewLine(this.spineCoordinate, 200, this.lineSpot, angle);
-                        // if (this.nthChild % 2 !== 0) {
-                        //     this.reflect(item, stageSize.height / 2);
-                        // }
+                        coordinate = this.makeNewLine(this.spineCoordinate, 200, this.lineSpot - 0.15, angle);
+                        // this.lineSpot += 0.1;
                         angle = angle === Math.PI / 2.3 ? 0 : Math.PI / 2.3;
                         this.depthCounter++;
                         this.checkItems(item.children, this.makeNewLine, coordinate); // Recursively call the function for nested children
                     } else {
                         if (!item.coord) {
                             this.depthCounter++;
-                            // if (this.nthChild % 2 !== 0) {
-                            //     this.reflect(item, stageSize.height / 2);
-                            // }
                             this.checkItems(item.children, this.makeNewLine, null); // Recursively call the function for nested children
                         } else {
                             this.depthCounter++;
-                            // if (this.nthChild % 2 !== 0) {
-                            //     this.reflect(item, stageSize.height / 2);
-                            // }
                             this.checkItems(item.children, this.makeNewLine, item.coord); // Recursively call the function for nested children
                         }
                     }
                 }
-                this.reflect(this.data[1] , stageSize.height / 2)
+                this.reflect(this.data[0], stageSize.height / 2);
+                this.reflect(this.data[2], stageSize.height / 2);
+                this.reflect(this.data[4], stageSize.height / 2);
                 this.items.push({ title: item?.title, coord: item?.coord });
             });
         }
 
-        createCoordinate(item: any, lineBase: any, length: number, angle: number, startSpot: number) {
-            item.coord = this.makeNewLine(lineBase, length, startSpot, angle);
-        }
-
         reflect(item: any, YSpineCoordinate: number) {
             if (item.coord) {
+                // item.coord[0] += 20
                 item.coord[1] = YSpineCoordinate - item.coord[1] + YSpineCoordinate;
                 item.coord[3] = YSpineCoordinate - item.coord[3] + YSpineCoordinate;
             }
@@ -212,6 +202,75 @@ const FishboneDiagram = () => {
                 },
             ],
         },
+        {
+            title: "نیرو غیر انسانی",
+            children: [
+                {
+                    title: "test",
+                    children: [
+                        {
+                            title: "test-2",
+                            children: [
+                                {
+                                    title: "test-3",
+                                    children: [
+                                        {
+                                            title: "test-4",
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            title: "نیرو غیر انسانی",
+            children: [
+                {
+                    title: "test",
+                    children: [
+                        {
+                            title: "test-2",
+                            children: [
+                                {
+                                    title: "test-3",
+                                    children: [
+                                        {
+                                            title: "test-4",
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            title: "نیرو غیر انسانی",
+            children: [
+                {
+                    title: "test",
+                    children: [
+                        {
+                            title: "test-2",
+                            children: [
+                                {
+                                    title: "test-3",
+                                    children: [
+                                        {
+                                            title: "test-4",
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
     ];
 
     const diagram = new Fishbone(fishboneData);
@@ -241,16 +300,19 @@ const FishboneDiagram = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 direction: "rtl",
+                position: "relative",
             }}
         >
             <Stage width={stageSize.width} height={stageSize.height}>
                 <Layer>
                     <Line
                         points={[SpineCordinate.x1, SpineCordinate.y1, SpineCordinate.x2, SpineCordinate.y2]}
+                        height={3}
                         tension={0.5}
-                        closed
                         stroke="black"
-                        strokeWidth={3}
+                        cornerRadius={70}
+                        strokeWidth={5}
+                        lineCap="round"
                     />
                     <Text
                         x={SpineCordinate.x2 + 20}
@@ -258,7 +320,7 @@ const FishboneDiagram = () => {
                         text="عدم رضایت مشتریان از ارائه فاکتور"
                         fontSize={20}
                         fontFamily="sans-serif"
-                        fill="black"
+                        fill="#000"
                     />
                     {diagram?.items.map((item: any) => (
                         <>
@@ -266,6 +328,8 @@ const FishboneDiagram = () => {
                                 points={item.coord}
                                 stroke={`#${randomColorGenerator()}`}
                                 strokeWidth={3}
+                                cornerRadius={70}
+                                lineCap="round"
                                 // onClick={() => console.log("text")}
                             />
                             <Text
@@ -280,6 +344,14 @@ const FishboneDiagram = () => {
                                 fontSize={16}
                                 fontFamily="sans-serif"
                                 width={150}
+                                onMouseEnter={(e) => {
+                                    const container = e.target.getStage()?.container();
+                                    container.style.cursor = "pointer";
+                                }}
+                                onMouseLeave={(e) => {
+                                    const container = e.target.getStage()?.container();
+                                    container.style.cursor = "default";
+                                }}
                                 fill="black"
                             />
                         </>
