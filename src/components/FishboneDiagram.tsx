@@ -39,10 +39,11 @@ const FishboneDiagram = () => {
             x2: stageSize.width - 320,
             y2: stageSize.height / 2,
         };
-        verticalLinesLength = 400;
+        verticalLinesLength = stageSize.height / 2 - 50;
         lineSpot = 0.4;
         depthCounter = 1;
         lineAngle = 0;
+        nthChild = 1;
 
         constructor(data: any[]) {
             this.data = data;
@@ -67,10 +68,15 @@ const FishboneDiagram = () => {
             this.checkItems(this.data, this.makeNewLine, null);
         }
 
+        print(){
+            console.log(this.data);
+        }
+
         checkItems(data: any, callBackFn: any, coord: any) {
             // debugger;
             data.forEach((item: any) => {
                 if (!coord) {
+                    this.verticalLinesLength = stageSize.height / 2 - 50;
                     this.createCoordinate(
                         item,
                         this.spineCoordinate,
@@ -78,39 +84,61 @@ const FishboneDiagram = () => {
                         Math.PI / 2.3,
                         this.lineSpot
                     );
+                    // if (this.nthChild % 2 === 0) {
+                    //     this.reflect(item, stageSize.height / 2);
+                    // }
                     this.verticalLinesLength -= 70;
-                    this.lineSpot += 0.1;
+                    // this.lineSpot += 0.1;
+                    this.nthChild++;
                 } else {
-                    const coordObject = { x1: item.coord?.[0], y1: item.coord?.[1], x2: item.coord?.[2], y2: item.coord?.[3] };
+                    const coordObject = {
+                        x1: coord[0],
+                        y1: coord[1],
+                        x2: coord[2],
+                        y2: coord[3],
+                    };
                     if (this.depthCounter % 2 === 0) {
-                        item.coord = this.makeNewLine(coordObject, 180, this.lineAngle, 0.5);
+                        item.coord = this.makeNewLine(coordObject, 180, this.lineSpot, this.lineAngle);
                         this.lineAngle = this.lineAngle === 0 ? Math.PI / 2.3 : 0;
                         this.verticalLinesLength -= 70;
                     } else {
-                        item.coord = this.makeNewLine(coordObject, this.verticalLinesLength, this.lineAngle, 0.9);
+                        item.coord = this.makeNewLine(coordObject, this.verticalLinesLength, 0.9, this.lineAngle);
                         this.lineAngle = this.lineAngle === 0 ? Math.PI / 2.3 : 0;
                         this.verticalLinesLength -= 70;
                     }
+                    // if (this.nthChild % 2 !== 0) {
+                    //     this.reflect(item, stageSize.height / 2);
+                    // }
                 }
 
                 if (item.children) {
                     if (!coord) {
-                        let cordinate: any;
-                        // let angle = Math.PI / 2.3;
-                        cordinate = this.makeNewLine(this.spineCoordinate, 200, this.angle, 0.4);
+                        let coordinate: any;
+                        let angle = Math.PI / 2.3;
+                        coordinate = this.makeNewLine(this.spineCoordinate, 200, this.lineSpot, angle);
+                        // if (this.nthChild % 2 !== 0) {
+                        //     this.reflect(item, stageSize.height / 2);
+                        // }
                         angle = angle === Math.PI / 2.3 ? 0 : Math.PI / 2.3;
                         this.depthCounter++;
-                        this.checkItems(item.children, this.makeNewLine, cordinate); // Recursively call the function for nested children
+                        this.checkItems(item.children, this.makeNewLine, coordinate); // Recursively call the function for nested children
                     } else {
                         if (!item.coord) {
                             this.depthCounter++;
-                            this.checkItems(item.children, this.makeNewLine, coord); // Recursively call the function for nested children
+                            // if (this.nthChild % 2 !== 0) {
+                            //     this.reflect(item, stageSize.height / 2);
+                            // }
+                            this.checkItems(item.children, this.makeNewLine, null); // Recursively call the function for nested children
                         } else {
                             this.depthCounter++;
+                            // if (this.nthChild % 2 !== 0) {
+                            //     this.reflect(item, stageSize.height / 2);
+                            // }
                             this.checkItems(item.children, this.makeNewLine, item.coord); // Recursively call the function for nested children
                         }
                     }
                 }
+                this.reflect(this.data[1] , stageSize.height / 2)
                 this.items.push({ title: item?.title, coord: item?.coord });
             });
         }
@@ -125,7 +153,7 @@ const FishboneDiagram = () => {
                 item.coord[3] = YSpineCoordinate - item.coord[3] + YSpineCoordinate;
             }
             if (item.children) {
-                this.reflect(item.children, YSpineCoordinate);
+                this.reflect(item.children[0], YSpineCoordinate);
             }
         }
     }
@@ -163,11 +191,32 @@ const FishboneDiagram = () => {
         },
         {
             title: "نیرو غیر انسانی",
+            children: [
+                {
+                    title: "test",
+                    children: [
+                        {
+                            title: "test-2",
+                            children: [
+                                {
+                                    title: "test-3",
+                                    children: [
+                                        {
+                                            title: "test-4",
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
         },
     ];
 
-    const diagram = new Fishbone(fishboneData)
+    const diagram = new Fishbone(fishboneData);
     diagram.start();
+    diagram.print();
 
     const randomColorGenerator = () => {
         const color = Math.floor(Math.random() * 16777215).toString(16);
