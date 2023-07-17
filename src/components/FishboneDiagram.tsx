@@ -1,7 +1,6 @@
-import { Box, SvgIcon } from "@mui/material";
+import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Layer, Line, Rect, RegularPolygon, Stage, Text } from "react-konva";
-import FishHead from "./FishHead";
+import { Layer, Line, RegularPolygon, Stage, Text } from "react-konva";
 
 type Line = {
     x1: number;
@@ -129,9 +128,9 @@ const FishboneDiagram = () => {
                         }
                     }
                 }
-                this.reflect(this.data[0], stageSize.height / 2);
-                this.reflect(this.data[2], stageSize.height / 2);
-                this.reflect(this.data[4], stageSize.height / 2);
+                this.reflect(this.data[1], stageSize.height / 2);
+                // this.reflect(this.data[2], stageSize.height / 2);
+                // this.reflect(this.data[4], stageSize.height / 2);
                 this.items.push({ title: item?.title, coord: item?.coord });
             });
         }
@@ -202,75 +201,75 @@ const FishboneDiagram = () => {
                 },
             ],
         },
-        {
-            title: "نیرو غیر انسانی",
-            children: [
-                {
-                    title: "test",
-                    children: [
-                        {
-                            title: "test-2",
-                            children: [
-                                {
-                                    title: "test-3",
-                                    children: [
-                                        {
-                                            title: "test-4",
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            title: "نیرو غیر انسانی",
-            children: [
-                {
-                    title: "test",
-                    children: [
-                        {
-                            title: "test-2",
-                            children: [
-                                {
-                                    title: "test-3",
-                                    children: [
-                                        {
-                                            title: "test-4",
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            title: "نیرو غیر انسانی",
-            children: [
-                {
-                    title: "test",
-                    children: [
-                        {
-                            title: "test-2",
-                            children: [
-                                {
-                                    title: "test-3",
-                                    children: [
-                                        {
-                                            title: "test-4",
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
+        // {
+        //     title: "نیرو غیر انسانی",
+        //     children: [
+        //         {
+        //             title: "test",
+        //             children: [
+        //                 {
+        //                     title: "test-2",
+        //                     children: [
+        //                         {
+        //                             title: "test-3",
+        //                             children: [
+        //                                 {
+        //                                     title: "test-4",
+        //                                 },
+        //                             ],
+        //                         },
+        //                     ],
+        //                 },
+        //             ],
+        //         },
+        //     ],
+        // },
+        // {
+        //     title: "نیرو غیر انسانی",
+        //     children: [
+        //         {
+        //             title: "test",
+        //             children: [
+        //                 {
+        //                     title: "test-2",
+        //                     children: [
+        //                         {
+        //                             title: "test-3",
+        //                             children: [
+        //                                 {
+        //                                     title: "test-4",
+        //                                 },
+        //                             ],
+        //                         },
+        //                     ],
+        //                 },
+        //             ],
+        //         },
+        //     ],
+        // },
+        // {
+        //     title: "نیرو غیر انسانی",
+        //     children: [
+        //         {
+        //             title: "test",
+        //             children: [
+        //                 {
+        //                     title: "test-2",
+        //                     children: [
+        //                         {
+        //                             title: "test-3",
+        //                             children: [
+        //                                 {
+        //                                     title: "test-4",
+        //                                 },
+        //                             ],
+        //                         },
+        //                     ],
+        //                 },
+        //             ],
+        //         },
+        //     ],
+        // },
     ];
 
     const diagram = new Fishbone(fishboneData);
@@ -305,6 +304,18 @@ const FishboneDiagram = () => {
         >
             <Stage width={stageSize.width} height={stageSize.height}>
                 <Layer>
+                    <RegularPolygon
+                        x={stageSize.width - 210}
+                        y={stageSize.height / 2}
+                        sides={3}
+                        radius={110}
+                        scaleX={1.5}
+                        scaleY={2}
+                        rotation={90}
+                        stroke="#fff"
+                        fill="salmon"
+                        zIndex={2}
+                    />
                     <Line
                         points={[SpineCordinate.x1, SpineCordinate.y1, SpineCordinate.x2, SpineCordinate.y2]}
                         height={3}
@@ -313,14 +324,16 @@ const FishboneDiagram = () => {
                         cornerRadius={70}
                         strokeWidth={5}
                         lineCap="round"
+                        // zIndex={3}
                     />
                     <Text
-                        x={SpineCordinate.x2 + 20}
+                        x={SpineCordinate.x2 + 10}
                         y={SpineCordinate.y2 - 10}
                         text="عدم رضایت مشتریان از ارائه فاکتور"
                         fontSize={20}
                         fontFamily="sans-serif"
                         fill="#000"
+                        zIndex={3}
                     />
                     {diagram?.items.map((item: any) => (
                         <>
@@ -344,14 +357,6 @@ const FishboneDiagram = () => {
                                 fontSize={16}
                                 fontFamily="sans-serif"
                                 width={150}
-                                onMouseEnter={(e) => {
-                                    const container = e.target.getStage()?.container();
-                                    container.style.cursor = "pointer";
-                                }}
-                                onMouseLeave={(e) => {
-                                    const container = e.target.getStage()?.container();
-                                    container.style.cursor = "default";
-                                }}
                                 fill="black"
                             />
                         </>
