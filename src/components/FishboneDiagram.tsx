@@ -30,6 +30,7 @@ const FishboneDiagram = () => {
         };
     }, []);
 
+    /////////////////////////////////----->> FishBone Class <<-----\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     class Fishbone {
         data: any[] = [];
         items: any = [];
@@ -42,8 +43,10 @@ const FishboneDiagram = () => {
         verticalLinesLength = stageSize.height / 2 - 50;
         lineSpot = 0.3;
         depthCounter = 1;
+        parentNode: number[] = [];
         lineAngle = 0;
         nthChild = 1;
+        countLoop = 0;
 
         constructor(data: any[]) {
             this.data = data;
@@ -69,43 +72,95 @@ const FishboneDiagram = () => {
         }
 
         start() {
-            this.checkItems(this.data, this.makeNewLine, null);
+            const newData = JSON.parse(JSON.stringify(this.data));
+            console.log("newData", newData);
+            this.checkItems(newData, this.makeNewLine, null);
         }
 
         print() {
-            console.log(this.data);
+            console.log("final data", this.items);
         }
 
         checkItems(data: any, callBackFn: any, coord: any) {
             // debugger;
-            data.forEach((item: any) => {
-                if (!coord) {
-                    this.verticalLinesLength = stageSize.height / 2 - 50;
-                    this.createCoordinate(
-                        item,
-                        this.spineCoordinate,
-                        this.verticalLinesLength,
-                        Math.PI / 2.3,
-                        this.lineSpot
-                    );
-                    this.verticalLinesLength -= 70;
-                    this.lineSpot += 0.15;
-                    this.nthChild++;
-                } else {
+            this.countLoop = this.countLoop + 1;
+            data?.forEach((item: any, index: any) => {
+                console.log(index);
+                // if (item.title === "testing") {
+                //     debugger;
+                // }
+                this.parentNode.push(item);
+                // if (item.title === "test1") {
+                //     debugger;
+                // }
+                if (index > 0) {
+                    // fix me in zero level we have problem
+                    console.log(item.level - 1);
+                    console.log(this.depthCounter);
+                    console.log(this.parentNode);
+                    // debugger;
+                    // let foundData;
+                    // this.data.forEach((dat) => {
+                    //     if (dat.level === item.level - 1) {
+                    //         foundData = dat;
+                    //         return
+                    //     }
+                    //     else {
+                    //         if (dat.children) {
+                    //             dat.children.forEach(ch => {
+                    //                 if
+                    //             })
+                    //         }
+                    //     }
+                    // });
+                    const parentLevelCord = this.parentNode.find((d: any) => d.level === item.level - 1)?.coord;
                     const coordObject = {
-                        x1: coord[0],
-                        y1: coord[1],
-                        x2: coord[2],
-                        y2: coord[3],
+                        x1: parentLevelCord[0],
+                        y1: parentLevelCord[1],
+                        x2: parentLevelCord[2],
+                        y2: parentLevelCord[3],
                     };
                     if (this.depthCounter % 2 === 0) {
-                        item.coord = this.makeNewLine(coordObject, 180, this.lineSpot, this.lineAngle);
-                        this.lineAngle = this.lineAngle === 0 ? Math.PI / 2.3 : 0;
+                        item.coord = this.makeNewLine(coordObject, 100, this.lineSpot, 0);
+                        // this.lineAngle = this.lineAngle === Math.PI ? 0 : Math.PI;
                         this.verticalLinesLength -= 70;
+                        this.lineSpot += 0.1
                     } else {
-                        item.coord = this.makeNewLine(coordObject, this.verticalLinesLength, 0.9, this.lineAngle);
-                        this.lineAngle = this.lineAngle === 0 ? Math.PI / 2.3 : 0;
+                        item.coord = this.makeNewLine(coordObject, 100, this.lineSpot, 0);
+                        // this.lineAngle = this.lineAngle === Math.PI ? 0 : Math.PI;
                         this.verticalLinesLength -= 70;
+                        this.lineSpot += 0.1
+                    }
+                } else {
+                    if (!coord) {
+                        this.verticalLinesLength = stageSize.height / 2 - 50;
+                        this.createCoordinate(
+                            item,
+                            this.spineCoordinate,
+                            this.verticalLinesLength,
+                            Math.PI / 2.3,
+                            this.lineSpot
+                        );
+                        this.verticalLinesLength -= 70;
+                        this.lineSpot += 0.15;
+                        this.nthChild++;
+                    } else {
+                        const coordObject = {
+                            x1: coord[0],
+                            y1: coord[1],
+                            x2: coord[2],
+                            y2: coord[3],
+                        };
+                        if (this.depthCounter % 2 === 0) {
+                            item.coord = this.makeNewLine(coordObject, 180, this.lineSpot, this.lineAngle);
+                            // this.reflectX = (item ,)
+                            this.lineAngle = this.lineAngle === 0 ? Math.PI / 2.3 : 0;
+                            this.verticalLinesLength -= 70;
+                        } else {
+                            item.coord = this.makeNewLine(coordObject, this.verticalLinesLength, 0.9, this.lineAngle);
+                            this.lineAngle = this.lineAngle === 0 ? Math.PI / 2.3 : 0;
+                            this.verticalLinesLength -= 70;
+                        }
                     }
                 }
 
@@ -121,6 +176,8 @@ const FishboneDiagram = () => {
                     } else {
                         if (!item.coord) {
                             this.depthCounter++;
+                            console.log(item.children);
+                            console.log("object");
                             this.checkItems(item.children, this.makeNewLine, null); // Recursively call the function for nested children
                         } else {
                             this.depthCounter++;
@@ -128,21 +185,30 @@ const FishboneDiagram = () => {
                         }
                     }
                 }
-                this.reflect(this.data[1], stageSize.height / 2);
+                // this.reflect(this.data[1], stageSize.height / 2);
                 // this.reflect(this.data[2], stageSize.height / 2);
                 // this.reflect(this.data[4], stageSize.height / 2);
-                this.items.push({ title: item?.title, coord: item?.coord });
+                this.items.push({ title: item?.title, coord: item?.coord, level: item.level });
             });
         }
 
-        reflect(item: any, YSpineCoordinate: number) {
+        reflectX(item: any, YSpineCoordinate: number) {
             if (item.coord) {
-                // item.coord[0] += 20
                 item.coord[1] = YSpineCoordinate - item.coord[1] + YSpineCoordinate;
                 item.coord[3] = YSpineCoordinate - item.coord[3] + YSpineCoordinate;
             }
             if (item.children) {
-                this.reflect(item.children[0], YSpineCoordinate);
+                this.reflectX(item.children[0], YSpineCoordinate);
+            }
+        }
+
+        reflectY(item: any, XSpinCoordinate: number) {
+            if (item.coord) {
+                item.coord[0] = XSpinCoordinate - item.coord[0] + XSpinCoordinate;
+                item.coord[2] = XSpinCoordinate - item.coord[2] + XSpinCoordinate;
+            }
+            if (item.children) {
+                this.reflectX(item.children[0], XSpinCoordinate);
             }
         }
     }
@@ -157,52 +223,94 @@ const FishboneDiagram = () => {
     const fishboneData = [
         {
             title: "نیروانسانی",
+            level: 0,
             children: [
                 {
                     title: "قصه حسین کرد تا فردا صبح کش میایه",
+                    level: 1,
                     children: [
                         {
                             title: "علل1.2",
+                            level: 2,
+
                             children: [
                                 {
                                     title: "علل 2",
+                                    level: 3,
+
                                     children: [
                                         {
-                                            title: "علل 2",
+                                            level: 4,
+                                            title: "علل erfan",
                                         },
                                     ],
                                 },
+                                // {
+                                //     title: "تست",
+                                //     level: 3,
+                                // },
                             ],
                         },
                     ],
+                },
+                {
+                    title: "testing",
+                    level: 1,
+
+                    // children: [
+                    //     {
+                    //         title: "test1",
+                    //         level: 2,
+
+                    // children: [
+                    //     {
+                    //         title: "test1.1",
+                    //         level: 3,
+                    //         children: [
+                    //             {
+                    //                 title: "test1.1.2",
+                    //                 level: 4,
+                    //             },
+                    //         ],
+                    //     },
+                    //     {
+                    //         level: 3,
+
+                    //         title: "test1.2",
+                    //     },
+                    // ],
+                    //     },
+                    // ],
                 },
             ],
         },
         {
             title: "نیرو غیر انسانی",
-            children: [
-                {
-                    title: "test",
-                    children: [
-                        {
-                            title: "test-2",
-                            children: [
-                                {
-                                    title: "test-3",
-                                    children: [
-                                        {
-                                            title: "test-4",
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
+            level: 1,
+        //     children: [
+        //         {
+        //             title: "test",
+        //             children: [
+        //                 {
+        //                     title: "test-2",
+        //                     children: [
+        //                         {
+        //                             title: "test-3",
+        //                             children: [
+        //                                 {
+        //                                     title: "test-4",
+        //                                 },
+        //                             ],
+        //                         },
+        //                     ],
+        //                 },
+        //             ],
+        //         },
+        //     ],
         },
         // {
-        //     title: "نیرو غیر انسانی",
+        //     title: "نیرو انسانی",
+        //     level: 1,
         //     children: [
         //         {
         //             title: "test",
